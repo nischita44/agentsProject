@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Report</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Budget Report</h1>
+
+    <h2>1. Budget Summary</h2>
+    <p><strong>Total Budget:</strong> $500</p>
+    <p><strong>Total Spent:</strong> $932.02</p>
+    <p><strong>Over Budget:</strong> $432.02</p>
+
+    <h2>2. Burn Rate</h2>
+    <p><strong>Daily Burn Rate:</strong> $29.93</p>
+    <p><strong>Projected Exhaustion Date:</strong> 2025-07-17</p>
+
+    <h2>3. Alerts</h2>
+    <ul>
+        <li>Crossed 50% budget on 2025-07-10</li>
+        <li>Crossed 75% on 2025-07-15</li>
+        <li>Crossed 90% on 2025-07-17</li>
+        <li>Projected to exhaust budget by 2025-07-17</li>
+    </ul>
+
+    <h2>4. Burn Rate Chart</h2>
+    <div id="burn-rate-chart"></div>
+    
+    <script>
+        const cumulativeSpend = {
+            "2025-07-01": 27.74,
+            "2025-07-02": 79.25,
+            "2025-07-03": 79.25,
+            "2025-07-04": 87.21,
+            "2025-07-05": 99.31,
+            "2025-07-06": 127.04,
+            "2025-07-07": 138.50,
+            "2025-07-08": 175.82,
+            "2025-07-09": 187.73,
+            "2025-07-10": 272.75,
+            "2025-07-11": 272.75,
+            "2025-07-12": 285.17,
+            "2025-07-13": 327.80,
+            "2025-07-14": 330.24,
+            "2025-07-15": 338.26,
+            "2025-07-16": 343.14,
+            "2025-07-17": 408.73,
+            "2025-07-18": 419.26,
+            "2025-07-19": 440.27,
+            "2025-07-20": 486.90,
+            "2025-07-21": 489.34,
+            "2025-07-22": 489.34,
+            "2025-07-23": 582.25,
+            "2025-07-24": 621.05,
+            "2025-07-25": 621.05,
+            "2025-07-26": 634.57,
+            "2025-07-27": 721.12,
+            "2025-07-28": 754.95,
+            "2025-07-29": 757.39,
+            "2025-07-30": 778.72,
+            "2025-07-31": 932.02
+        };
+
+        const dates = Object.keys(cumulativeSpend);
+        const spends = Object.values(cumulativeSpend);
+        const budget = 500;
+
+        const trace1 = {
+            x: dates,
+            y: spends,
+            mode: 'lines+markers',
+            name: 'Cumulative Spend',
+            line: {color: 'blue'}
+        };
+
+        const trace2 = {
+            x: dates,
+            y: Array(dates.length).fill(budget),
+            mode: 'lines',
+            name: 'Budget',
+            line: {color: 'red'}
+        };
+
+        const data = [trace1, trace2];
+
+        const layout = {
+            title: 'Burn Rate Chart',
+            xaxis: {
+                title: 'Date'
+            },
+            yaxis: {
+                title: 'Dollar Amount',
+                rangemode: 'tozero'
+            },
+            shapes: [
+                { type: 'line', x0: '2025-07-10', x1: '2025-07-10', y0: 0, y1: budget, line: {color: 'green', width: 2, dash: 'dash'} },
+                { type: 'line', x0: '2025-07-15', x1: '2025-07-15', y0: 0, y1: budget, line: {color: 'orange', width: 2, dash: 'dash'} },
+                { type: 'line', x0: '2025-07-17', x1: '2025-07-17', y0: 0, y1: budget, line: {color: 'purple', width: 2, dash: 'dash'} }
+            ],
+            annotations: [
+                { x: '2025-07-10', y: budget + 50, xref: 'x', yref: 'y', text: 'Crossed 50%', showarrow: true, arrowhead: 2 },
+                { x: '2025-07-15', y: budget + 50, xref: 'x', yref: 'y', text: 'Crossed 75%', showarrow: true, arrowhead: 2 },
+                { x: '2025-07-17', y: budget + 50, xref: 'x', yref: 'y', text: 'Crossed 90%', showarrow: true, arrowhead: 2 }
+            ]
+        };
+
+        Plotly.newPlot('burn-rate-chart', data, layout);
+    </script>
+
+    <h2>5. Daily Spending Table</h2>
+    <table>
+        <thead>
+            <tr><th>Date</th><th>Amount</th><th>Cumulative</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>2025-07-01</td><td>$10.50</td><td>$27.74</td></tr>
+            <tr><td>2025-07-02</td><td>$14.18</td><td>$79.25</td></tr>
+            <tr><td>2025-07-03</td><td>$0.00</td><td>$79.25</td></tr>
+            <tr><td>2025-07-04</td><td>$7.96</td><td>$87.21</td></tr>
+            <tr><td>2025-07-05</td><td>$8.77</td><td>$99.31</td></tr>
+            <tr><td>2025-07-06</td><td>$11.73</td><td>$127.04</td></tr>
+            <tr><td>2025-07-07</td><td>$13.22</td><td>$138.50</td></tr>
+            <tr><td>2025-07-08</td><td>$17.54</td><td>$175.82</td></tr>
+            <tr><td>2025-07-09</td><td>$9.79</td><td>$187.73</td></tr>
+            <tr><td>2025-07-10</td><td>$85.02</td><td>$272.75</td></tr>
+            <tr><td>2025-07-11</td><td>$0.00</td><td>$272.75</td></tr>
+            <tr><td>2025-07-12</td><td>$29.72</td><td>$285.17</td></tr>
+            <tr><td>2025-07-13</td><td>$42.63</td><td>$327.80</td></tr>
+            <tr><td>2025-07-14</td><td>$2.44</td><td>$330.24</td></tr>
+            <tr><td>2025-07-15</td><td>$6.02</td><td>$338.26</td></tr>
+            <tr><td>2025-07-16</td><td>$4.88</td><td>$343.14</td></tr>
+            <tr><td>2025-07-17</td><td>$65.59</td><td>$408.73</td></tr>
+            <tr><td>2025-07-18</td><td>$10.53</td><td>$419.26</td></tr>
+            <tr><td>2025-07-19</td><td>$21.01</td><td>$440.27</td></tr>
+            <tr><td>2025-07-20</td><td>$46.63</td><td>$486.90</td></tr>
+            <tr><td>2025-07-21</td><td>$9.46</td><td>$489.34</td></tr>
+            <tr><td>2025-07-22</td><td>$0.00</td><td>$489.34</td></tr>
+            <tr><td>2025-07-23</td><td>$88.47</td><td>$582.25</td></tr>
+            <tr><td>2025-07-24</td><td>$39.56</td><td>$621.05</td></tr>
+            <tr><td>2025-07-25</td><td>$0.00</td><td>$621.05</td></tr>
+            <tr><td>2025-07-26</td><td>$13.52</td><td>$634.57</td></tr>
+            <tr><td>2025-07-27</td><td>$86.55</td><td>$721.12</td></tr>
+            <tr><td>2025-07-28</td><td>$34.99</td><td>$754.95</td></tr>
+            <tr><td>2025-07-29</td><td>$2.44</td><td>$757.39</td></tr>
+            <tr><td>2025-07-30</td><td>$21.33</td><td>$778.72</td></tr>
+            <tr><td>2025-07-31</td><td>$84.38</td><td>$932.02</td></tr>
+        </tbody>
+    </table>
+</body>
+</html>
+```
+
+This HTML report includes a comprehensive analysis of the budget expenditures, a burn rate chart, and a detailed daily spending table for stakeholder review. يُ
