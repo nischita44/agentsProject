@@ -1,0 +1,169 @@
+budget_reader:
+  description: >
+    Load and interpret pre-allocated budget data for the expense tracking system.
+
+    Behavior:
+    - If `monthly_budget` is provided as input, use that as the total budget.
+    - Otherwise, fall back to the default: $500.
+
+    - Allocate 100% of the monthly budget to the "restaurants" category.
+
+    Responsibilities:
+    - Parse budget structure and allocation breakdown.
+    - Validate that the total allocation equals the budget.
+    - Compute daily and weekly limits for reference.
+    - Share structured budget context with other agents.
+
+  expected_output: >
+    {
+      "total_budget": 500,
+      "category_allocations": {
+        "restaurants": 500
+      },
+      "daily_limit": 16.13,
+      "weekly_limit": 115.0
+    }
+
+expense_tracker:
+  description: >
+    Load and categorize restaurant transactions for budget tracking.
+
+    Behavior:
+    - Ingest all input records (CSV or JSON).
+    - Do not deduplicate or filter by merchant or amount.
+    - Include all entries labeled with the "restaurants" category.
+
+    Responsibilities:
+    - Parse each transaction: date, amount, category.
+    - Preserve original values.
+    - Pass all data forward without cleaning or validation assumptions.
+
+  expected_output: >
+    A complete list of timestamped restaurant transactions ready for analysis.
+
+burner_rate_calculator:
+  description: >
+    Analyze expense records to compute:
+    - Total spending
+    - Daily burn rate
+    - Cumulative totals
+    - Budget consumption metrics
+
+    Behavior:
+    - Sum expenses per day.
+    - Aggregate total spent across all days.
+    - Compute percent of budget consumed.
+    - Estimate budget exhaustion date.
+
+    Use output from both `budget_reader` and `expense_tracker` as inputs.
+
+  expected_output: >
+    {
+      "total_spent": 932.02,
+      "daily_burn_rate": 29.93,
+      "percent_consumed": 185.55,
+      "cumulative_spend": {
+        "2025-07-01": 27.74,
+        ...
+        "2025-07-31": 932.02
+      },
+      "projected_exhaustion_date": "2025-07-17"
+    }
+
+visualization_assembly:
+  description: >
+    Build interactive visualizations based on burn metrics.
+
+    Responsibilities:
+    - Plot cumulative spending by date.
+    - Show budget lines and projection curves.
+    - Refresh as new expenses are tracked.
+    - Accept dynamic filtering but display full dataset by default.
+
+  expected_output: >
+    A burn rate chart with:
+    - Actual vs projected spend
+    - Budget thresholds
+    - Annotations for threshold crossings and exhaustion
+
+alert_assembly:
+  description: >
+    Generate real-time alerts and insights based on burn metrics.
+
+    Behavior:
+    - Trigger alerts at 50%, 75%, 90% of total budget.
+    - Use `burner_rate_calculator` output as ground truth.
+    - Do not recalculate spend — just evaluate thresholds and trends.
+
+    Additional:
+    - Identify anomalous spikes.
+    - Notify on daily overages.
+
+  expected_output: >
+    {
+      "alerts": [
+        "Crossed 50% budget on 2025-07-10",
+        "Crossed 75% on 2025-07-15",
+        "Crossed 90% on 2025-07-17",
+        "Projected to exhaust budget by 2025-07-17"
+      ]
+    }
+
+final_report_assembly:
+  description: >
+    Compile a Markdown report including:
+
+    - Budget summary
+    - Burn rate chart
+    - Alert logs
+    - Daily spending table
+    - Actionable insights
+
+    Responsibilities:
+    - Pull data only from upstream outputs (no recalculations)
+    - Present information clearly using charts, tables, and headlines
+  expected_output: >
+    A complete HTML report including:
+
+    ## 1. Budget Summary
+    - **Total Budget**: Derived from `budget_reader` (e.g., $500)
+    - **Total Spent**: Last value of `cumulative_spend` (e.g., $932.02)
+    - **Over Budget**: Computed as max(0, Total Spent - Total Budget)
+
+    ## 2. Burn Rate
+    - **Daily Burn Rate**: From `burner_rate_calculator`
+    - **Budget Exhaustion Date**: From `burner_rate_calculator`
+
+    ## 3. Alerts
+    - Pulled from `alert_assembly`
+    - Displayed as a bullet list or alert cards
+
+    ## 4. Burn Rate Chart (Interactive)
+    - Line chart showing cumulative spend over time
+    - Budget line at fixed Y = budget
+    - Projected spend curve using average daily burn rate
+    - Interactive via Plotly.js
+    - X-axis: Dates (July 1–31)
+    - Y-axis: Dollar amount
+    - Annotations at threshold crossings (50%, 75%, 90%)
+
+    ## 5. Daily Spending Table
+    - Rendered as an HTML table:
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Amount</th><th>Cumulative</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>2025-07-01</td><td>$27.74</td><td>$27.74</td></tr>
+          ...
+          <tr><td>2025-07-31</td><td>$84.38</td><td>$932.02</td></tr>
+        </tbody>
+      </table>
+
+    ## 6. Output Format
+    - The final report is a full HTML document.
+    - Includes:
+      - `<head>` with Plotly CDN
+      - `<script>` block rendering chart
+      - `<body>` with all sections above
+    - Ready to preview in browser or attach as a downloadable `.html` file
